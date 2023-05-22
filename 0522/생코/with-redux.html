@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.1/redux.js"></script>
+</head>
+
+<body>
+    <style>
+        .container {
+            border: 5px solid black;
+            padding: 10px;
+        }
+    </style>
+    <div id="red"></div>
+    <div id="blue"></div>
+    <div id="green"></div>
+    <script>
+        //reducer -store안 state 상태변경!!!!!!!!!!!
+        // state는 현재 상태, action은 주문 받은 것! 
+        function reducer(state, action) {  //state함수같은것.  state는컨테이너의현재상태. action은 state를어떻게변경해조 라는 주문서
+            console.log(state, action);
+            if (state === undefined) { //컨테이너를만들었지만 아직 사용하지않음. 상태값이없음
+                return { color: 'yellow' } //state의 초기값
+            }
+            var newState;
+            if (action.type === 'CHANGE_COLOR') { //reducer는 항상 action의 type을 확인한다.
+                //복제해야 합니다. 그냥 {color:'red'}이런 식으로 리턴해줘도 되긴 하는데 리덕스의 고급기능을 쓰지 못합니다.
+                // Object.assign({}, 빈객체에 복제할 값1, 빈객체에 복제할 값2...);
+                console.log(state)
+                // newState = Object.assign({}, state, { color: action.color }); 밑에spread랑 결과같음.
+                //assign은 첫번째 인자를 반환함. state와  color: action.color 를  {}에 넣어줌.
+                newState = { ...state, color: action.color };
+                //상태를바꿀때 새로운 state를 생성한다?
+            }
+            return newState;
+        }
+
+
+
+
+        // Redux객체는 cdn으로 생깁니다.
+        var store = Redux.createStore( //store는 컨테이너이다.상태를저장하는 컨테이너를 생성
+            reducer, //컨테이너는 하나의 reducer가 꼭 필요
+            window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__() // redux dev tools를 사용하기 위한 코드
+        );
+
+        //화면에 그려주는함수를 통틀어서 render
+        function red() { 
+            var state = store.getState(); //state에잇는 값을 가져와
+            //type은 반드시 있어야 합니다.
+            // 바뀔 때마다 console에 store.getState()를 실행해보세요.
+            document.querySelector('#red').innerHTML = `
+                <div class="container" id="component_red" style="background-color:${state.color}">
+                        <h1>red</h1>
+                        <input type="button" value="fire" onclick="
+                            store.dispatch({type:'CHANGE_COLOR', color:'red'}); 
+                        ">
+                </div>
+            `; //위에 type이 action type. action에는 반드시 type이 있어야함.
+            //dispatch는 redux에게 액션을 전달함 . ()안의 값(action)을 자동으로 reudcer함수의인자 action으로 들어감.
+            //{type:'CHANGE_COLOR', color:'red'} 이 변경하고픈 상태값(action)을 reducer에 전달
+            //action은 state변경한다.
+            //action요청은 dispatch를통해!
+        }
+        // 값이 바뀔 때마다 red 함수를 호출
+        store.subscribe(red); //store에잇는상태를구독하겟다. 컨테이너안에상태를구독하는모든컴포넌트에게적용된다?
+        red();
+
+        function blue() {
+            var state = store.getState();
+            document.querySelector('#blue').innerHTML = `
+                <div class="container" id="component_blue" style="background-color:${state.color}">
+                    <h1>blue</h1>
+                    <input type="button" value="fire" onclick="
+                        store.dispatch({type:'CHANGE_COLOR', color:'blue'});
+                    ">
+                </div>
+            `;
+        }
+        store.subscribe(blue);
+        blue();
+
+        function green() {
+            var state = store.getState();
+            document.querySelector('#green').innerHTML = `
+                <div class="container" id="component_green" style="background-color:${state.color}">
+                    <h1>green</h1>
+                    <input type="button" value="fire" onclick="
+                        store.dispatch({type:'CHANGE_COLOR', color:'green'});
+                    ">
+                </div>
+            `;
+        }
+        store.subscribe(green);
+        green();
+
+    </script>
+</body>
+
+</html>
